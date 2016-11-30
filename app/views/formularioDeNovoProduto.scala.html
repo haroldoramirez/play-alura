@@ -2,7 +2,7 @@
  * This template takes a single argument, a String containing a
  * message to display.
  *@
-@(formulario: Form[Produto])
+@(formulario: play.data.Form[Produto])
 
 @*
  * Call the `main` template with two arguments. The first
@@ -18,7 +18,7 @@
         @b3.text(formulario("titulo"), '_label -> "Título")
         @b3.text(formulario("codigo"), '_label -> "Código")
         @b3.text(formulario("tipo"), '_label -> "Tipo")
-        @b3.textarea(formulario("descricao"), '_label -> "Descrição")
+        @b3.textarea(formulario("descricao"))
         @b3.number(formulario("preco"), '_label -> "Preço")
         @b3.submit('class -> "btn btn-primary") { Cadastrar }
     }

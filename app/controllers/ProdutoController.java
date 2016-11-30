@@ -20,12 +20,13 @@ public class ProdutoController extends Controller {
 
     public Result salvaNovoProduto() {
         Form<Produto> formulario = formularios.form(Produto.class).bindFromRequest();
-        Produto produto = formulario.get();
 
         if (validatorDeProduto.temErros(formulario)) {
             flash("danger", "Existem erros no seu formulário!");
             return badRequest(formularioDeNovoProduto.render(formulario));
         }
+
+        Produto produto = formulario.get();
         produto.save();
         flash("success", "Seu produto '" + produto.getTitulo() + "' foi cadastrado com sucesso!");
         return redirect(routes.ProdutoController.formularioDeNovoProduto());
