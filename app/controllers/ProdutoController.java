@@ -22,7 +22,6 @@ public class ProdutoController extends Controller {
         Form<Produto> formulario = formularios.form(Produto.class).bindFromRequest();
 
         if (validatorDeProduto.temErros(formulario)) {
-            flash("danger", "Existem erros no seu formulário!");
             return badRequest(formularioDeNovoProduto.render(formulario));
         }
 
