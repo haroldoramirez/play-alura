@@ -1,22 +1,30 @@
 package controllers;
 
 import akka.util.Crypt;
+import autenticadores.UsuarioAutenticado;
 import com.google.inject.Inject;
 import daos.TokenDeCadastroDAO;
 import daos.UsuarioDAO;
 import models.EmailDeCadastro;
+import models.TokenDaApi;
 import models.TokenDeCadastro;
 import models.Usuario;
 import play.api.libs.mailer.MailerClient;
+import play.data.DynamicForm;
 import play.data.Form;
 import play.data.FormFactory;
-import play.mvc.*;
+import play.mvc.Controller;
+import play.mvc.Result;
+import play.mvc.Security;
 import validators.ValidadorDeUsuario;
 import views.html.*;
+import views.html.painel;
 
 import java.util.Optional;
 
 public class UsuarioController extends Controller {
+
+    public static final String AUTH = "AUTH";
 
     @Inject
     private FormFactory formularios;
@@ -53,7 +61,7 @@ public class UsuarioController extends Controller {
         token.save();
         enviador.send(new EmailDeCadastro(token));
         flash("success", "Um email foi enviado para confirmar o seu cadastro!");
-        return redirect("/login");
+        return redirect(routes.UsuarioController.formularioDeLogin());
     }
 
     public Result confirmaUsuario(String email, String codigo) {
@@ -65,14 +73,66 @@ public class UsuarioController extends Controller {
             if (token.getUsuario().equals(usuario)) {
                 token.delete();
                 usuario.setVerificado(true);
+                TokenDaApi tokenDaApi = new TokenDaApi(usuario);
+                tokenDaApi.save();
+                usuario.setToken(tokenDaApi);
                 usuario.update();
-                flash("success", "Cadastrado confirmado com sucesso");
-                // TODO fazer login
-                return redirect("/usuario/painel"); // TODO
+                flash("success", "Cadastro confirmado com sucesso");
+                insereUsuarioNaSessao(usuario);
+                return redirect(routes.UsuarioController.painel());
             }
         }
 
         flash("danger", "Ocorreu um erro ao confirmar o cadastro!");
-        return redirect("/login"); // TODO
+        return redirect(routes.UsuarioController.formularioDeLogin());
+    }
+
+    public Result formularioDeLogin() {
+        return ok(formularioDeLogin.render(formularios.form()));
+    }
+
+    public Result fazLogin() {
+
+        DynamicForm formulario = formularios.form().bindFromRequest();
+
+        String email = formulario.get("email");
+        String senha = Crypt.sha1(formulario.get("senha"));
+
+        Optional<Usuario> possivelUsuario = usuarioDAO.comEmailESenha(email, senha);
+
+        if (possivelUsuario.isPresent()) {
+            Usuario usuario = possivelUsuario.get();
+            if (usuario.isVerificado()) {
+                insereUsuarioNaSessao(usuario);
+                flash("success", "Login foi efetuado com sucesso!");
+                return redirect(routes.UsuarioController.painel());
+            }
+            else {
+                flash("warning", "O usuário ainda não confirmado! Confira seu email");
+            }
+        }
+        else {
+            flash("danger", "Credenciais inválidas");
+        }
+
+        return redirect(routes.UsuarioController.formularioDeLogin());
+    }
+
+    @Security.Authenticated(UsuarioAutenticado.class)
+    public Result painel() {
+        String codigo = session(AUTH);
+        Usuario usuario = usuarioDAO.comToken(codigo).get();
+        return ok(painel.render(usuario));
+    }
+
+    @Security.Authenticated(UsuarioAutenticado.class)
+    public Result fazLogout() {
+        session().clear();
+        flash("success", "Logout efetuado com sucesso!");
+        return redirect(routes.UsuarioController.formularioDeLogin());
+    }
+
+    private void insereUsuarioNaSessao(Usuario usuario) {
+        session(AUTH, usuario.getToken().getCodigo());
     }
 }

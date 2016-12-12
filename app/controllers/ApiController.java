@@ -1,5 +1,7 @@
 package controllers;
 
+import acoes.AcaoDeRegistroDeAcesso;
+import autenticadores.AcessoDaApiAutenticado;
 import com.fasterxml.jackson.databind.JsonNode;
 import daos.ProdutoDAO;
 import models.EnvelopeDeProdutos;
@@ -10,12 +12,16 @@ import play.data.validation.ValidationError;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Result;
+import play.mvc.Security;
+import play.mvc.With;
 
 import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+@Security.Authenticated(AcessoDaApiAutenticado.class)
+@With(AcaoDeRegistroDeAcesso.class)
 public class ApiController extends Controller {
 
     private static final List<String> ATRIBUTOS = Arrays.asList("id", "titulo", "codigo", "tipo", "descricao", "preco");
