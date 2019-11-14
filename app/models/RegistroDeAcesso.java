@@ -1,9 +1,11 @@
 package models;
 
 import com.avaje.ebean.Model;
-import com.sun.org.apache.regexp.internal.RE;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import java.util.Date;
 
 @Entity

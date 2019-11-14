@@ -12,7 +12,7 @@ import views.html.*;
 
 import javax.inject.Inject;
 
-@Security.Authenticated(AdminAutenticado.class)
+//@Security.Authenticated(AdminAutenticado.class)
 public class ProdutoController extends Controller {
 
     @Inject

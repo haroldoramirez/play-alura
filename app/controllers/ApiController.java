@@ -20,7 +20,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-@Security.Authenticated(AcessoDaApiAutenticado.class)
+//@Security.Authenticated(AcessoDaApiAutenticado.class)
 @With(AcaoDeRegistroDeAcesso.class)
 public class ApiController extends Controller {
 

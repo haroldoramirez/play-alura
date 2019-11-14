@@ -11,7 +11,7 @@ import views.html.*;
 
 import java.util.List;
 
-@Security.Authenticated(AdminAutenticado.class)
+//@Security.Authenticated(AdminAutenticado.class)
 public class AdminController extends Controller {
 
     @Inject
